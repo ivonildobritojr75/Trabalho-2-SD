@@ -6,7 +6,7 @@ python server.py
 
 Abra o projeto Android no Android Studio.
 
-Configure o IP do servidor no app (private val SERVER_HOST = "Seu IP").
+Configure o IP do servidor no App (private val SERVER_HOST = "Seu IP").
 
 Vá em Build → Build Bundle(s) / APK(s) → Build APK(s).
 
@@ -16,10 +16,16 @@ Encontre o APK em:
 
 Transfira o APK para o celular ou instale direto com Android Studio.
 
-3.Usar app
+3.Usar App
 
-No app, tocar “Tirar e Enviar” → tirar a foto e confirmar.
+No App, tocar “Tirar e Enviar” → tirar a foto e confirmar.
 
 O servidor recebe, salva (em received/foto_YYYYMMDD_HHMMSS.jpg) e mostra a foto.
 
 Tirar outra foto → a janela atualiza com a nova imagem (e salva novamente).
+
+Server Print:
+https://github.com/ivonildobritojr75/Trabalho-2-SD/issues/1#issue-3364323564
+
+App Print:
+https://github.com/ivonildobritojr75/Trabalho-2-SD/issues/2#issue-3364335562
