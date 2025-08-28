@@ -6,7 +6,7 @@ python server.py
 
 Abra o projeto Android no Android Studio.
 
-Configure o IP do servidor no App (private val SERVER_HOST = "Seu IP").
+Configure o IP do servidor no App (em MainActivity.kt mude: private val SERVER_HOST = "Seu IP").
 
 Vá em Build → Build Bundle(s) / APK(s) → Build APK(s).
 
