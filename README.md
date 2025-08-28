@@ -2,7 +2,6 @@
 
 python server.py
 
-
 2.Gerando o APK do App Android:
 
 Abra o projeto Android no Android Studio.
@@ -16,7 +15,6 @@ Encontre o APK em:
 <projeto>/app/build/outputs/apk/debug/app-debug.apk
 
 Transfira o APK para o celular ou instale direto com Android Studio.
-
 
 3.Usar app
 
