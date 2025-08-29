@@ -18,7 +18,7 @@ Transfira o APK para o celular ou instale direto com Android Studio.
 
 3.Usar App
 
-No App, tocar “Tirar e Enviar” → tirar a foto e confirmar.
+No App, coloque seu IP e depois tocar em “Tirar e Enviar” → tirar a foto e confirmar.
 
 O servidor recebe, salva (em received/foto_YYYYMMDD_HHMMSS.jpg) e mostra a foto.
 
