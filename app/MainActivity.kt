@@ -1,66 +1,63 @@
 package com.example.tcpphoto
 
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.os.Bundle
 import android.provider.MediaStore
 import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.EditText
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import java.io.ByteArrayOutputStream
 import java.net.Socket
 import java.nio.ByteBuffer
-import java.nio.ByteOrder
 
 class MainActivity : AppCompatActivity() {
 
-    private val SERVER_HOST = "0.0.0.0"
-    private val SERVER_PORT = 5000
+    private lateinit var cameraLauncher: ActivityResultLauncher<Intent>
+    private var serverIp: String = "0.0.0.0"  // valor padrão
+    private var serverPort: Int = 5000             // valor padrão
 
-    private lateinit var preview: ImageView
-    private lateinit var statusText: TextView
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
-    private val cameraLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val bmp = result.data?.extras?.get("data") as? Bitmap
-            if (bmp != null) {
-                val resized = resizeToMaxWidth(bmp, 1280)
-                val bos = ByteArrayOutputStream()
-                resized.compress(Bitmap.CompressFormat.JPEG, 80, bos)
-                val jpegBytes = bos.toByteArray()
+        val editIp = findViewById<EditText>(R.id.editIp)
+        val editPort = findViewById<EditText>(R.id.editPort)
+        val btn = findViewById<Button>(R.id.btnCaptureSend)
 
-                preview.setImageBitmap(resized)
-                statusText.text = "Enviando (${jpegBytes.size} bytes)..."
-
-                Thread {
-                    try {
-                        Socket(SERVER_HOST, SERVER_PORT).use { sock ->
-                            val out = sock.getOutputStream()
-                            val header = ByteBuffer.allocate(4)
-                                .order(ByteOrder.BIG_ENDIAN)
-                                .putInt(jpegBytes.size)
-                                .array()
-                            out.write(header)
-                            out.write(jpegBytes)
-                            out.flush()
-                        }
-                        runOnUiThread { statusText.text = "Enviado!" }
-                    } catch (e: Exception) {
-                        runOnUiThread { statusText.text = "Erro: ${e.message}" }
-                    }
-                }.start()
+        // Registrar launcher da câmera
+        cameraLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val extras = result.data?.extras
+                val bmp = extras?.get("data") as? Bitmap
+                if (bmp != null) {
+                    // Redimensionar imagem (se quiser)
+                    val resized = resizeToMaxWidth(bmp, 800)
+                    // Enviar para servidor
+                    sendImageToServer(resized, serverIp, serverPort)
+                }
             }
-        } else {
-            statusText.text = "Captura cancelada."
+        }
+
+        // Botão captura e envia
+        btn.setOnClickListener {
+            val ipText = editIp.text.toString().trim()
+            val portText = editPort.text.toString().trim()
+
+            if (ipText.isNotEmpty()) serverIp = ipText
+            if (portText.isNotEmpty()) serverPort = portText.toIntOrNull() ?: 5000
+
+            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            cameraLauncher.launch(intent)
         }
     }
 
+    // Função para redimensionar imagem antes de enviar
     private fun resizeToMaxWidth(bmp: Bitmap, maxWidth: Int): Bitmap {
         if (bmp.width <= maxWidth) return bmp
         val scale = maxWidth.toFloat() / bmp.width.toFloat()
@@ -69,17 +66,27 @@ class MainActivity : AppCompatActivity() {
         return Bitmap.createBitmap(bmp, 0, 0, bmp.width, bmp.height, matrix, true)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+    // Função que envia a imagem via socket TCP
+    private fun sendImageToServer(bmp: Bitmap, ip: String, port: Int) {
+        Thread {
+            try {
+                val socket = Socket(ip, port)
+                val output = socket.getOutputStream()
 
-        preview = findViewById(R.id.previewImage)
-        statusText = findViewById(R.id.statusText)
+                val baos = ByteArrayOutputStream()
+                bmp.compress(Bitmap.CompressFormat.JPEG, 80, baos)
+                val data = baos.toByteArray()
 
-        val btn = findViewById<Button>(R.id.btnCaptureSend)
-        btn.setOnClickListener {
-            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            cameraLauncher.launch(intent)
-        }
+                // Envia tamanho (4 bytes) + dados
+                val sizeBuf = ByteBuffer.allocate(4).putInt(data.size).array()
+                output.write(sizeBuf)
+                output.write(data)
+                output.flush()
+
+                socket.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }.start()
     }
 }
