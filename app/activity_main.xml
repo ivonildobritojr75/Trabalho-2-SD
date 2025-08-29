@@ -1,26 +1,35 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <EditText
         android:id="@+id/editIp"
+        android:hint="IP do servidor"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="IP do servidor (ex: 192.168.x.x)" />
+        android:layout_height="wrap_content"/>
 
     <EditText
         android:id="@+id/editPort"
+        android:hint="Porta"
+        android:inputType="number"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Porta (ex: 5000)"
-        android:inputType="number" />
+        android:layout_height="wrap_content"/>
 
     <Button
-        android:id="@+id/btnCaptureSend"
+        android:id="@+id/btnTakePhoto"
+        android:text="Tirar e Enviar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Tirar e Enviar" />
+        android:layout_height="wrap_content"/>
+
+    <!-- Aqui vai a foto -->
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:scaleType="centerCrop"
+        android:contentDescription="Foto tirada"/>
 
 </LinearLayout>
